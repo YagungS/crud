@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "tbl_user")
-@SQLDelete(sql = "UPDATE tbl_user SET deleted_time = NOW() WHERE id=?")
+@SQLDelete(sql = "UPDATE tbl_user SET deleted_time = NOW(), is_active = false WHERE id=?")
 public class User extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 2L;

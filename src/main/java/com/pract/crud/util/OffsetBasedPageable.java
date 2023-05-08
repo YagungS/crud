@@ -9,12 +9,6 @@ public class OffsetBasedPageable implements Pageable {
     private final int offset;
 
     public OffsetBasedPageable(int limit, int offset) {
-        if (limit < 1) {
-            throw new IllegalArgumentException("Limit must not be less than one!");
-        }
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset index must not be less than zero!");
-        }
         this.limit = limit;
         this.offset = offset;
     }
@@ -36,7 +30,7 @@ public class OffsetBasedPageable implements Pageable {
 
     @Override
     public Sort getSort() {
-        return null;
+        return Sort.by(Sort.Direction.ASC, "id");
     }
 
     @Override

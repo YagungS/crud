@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
     public String Test();
 
-    public List<UserDto> findAll();
+    public List<UserDto> findAll(int offset, int limit);
 
     public long count();
 
@@ -23,4 +23,8 @@ public interface UserService {
     public UserDto updateSetting(long id, List<UserSettingDto> settings);
 
     public void delete(long id);
+
+    public boolean isExist(String ssn);
+
+    public boolean isExist(long id);
 }

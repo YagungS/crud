@@ -6,9 +6,11 @@ import com.pract.crud.entity.User;
 import com.pract.crud.repository.UserRepository;
 import com.pract.crud.repository.UserSettingRepository;
 import com.pract.crud.service.UserService;
+import com.pract.crud.util.OffsetBasedPageable;
 import com.pract.crud.util.Util;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,9 +31,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> findAll() {
-        return userRepository.findAll()
-                .stream()
+    public List<UserDto> findAll(int offset, int limit) {
+        double pageNumber = 0;
+        if (offset > 0)
+            pageNumber = Math.floor(offset / limit) + ( offset % limit );
+        PageRequest pReq = PageRequest.of(Integer.valueOf((int) pageNumber), limit);
+        //OffsetBasedPageable pageable = new OffsetBasedPageable(limit, offset);
+        return userRepository.findAll(pReq).getContent().stream()
                 .map(UserDto::toDto)
                 .collect(Collectors.toList());
     }
@@ -61,7 +67,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findById(long id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() == null){
+        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()){
             return UserDto.toDto(user.get());
         }
         return null;
@@ -71,7 +77,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto update(UserDto userDto) {
         Optional<User> user = userRepository.findById(userDto.getId());
-        if(user.isPresent() && user.get().getDeletedTime() == null){
+        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()){
             User edited = user.get();
             edited.setSsn(userDto.getSsn());
             edited.setFirstName(userDto.getFirstName());
@@ -88,7 +94,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto refresh(long id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() != null){
+        if(user.isPresent() && user.get().getDeletedTime() != null && !user.get().getIsActive()){
             User edited = user.get();
             edited.setDeletedTime(null);
             userRepository.save(edited);
@@ -101,7 +107,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateSetting(long id, List<UserSettingDto> settings) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() == null){
+        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()){
             userSettingRepository.saveAll(settings.
                     stream()
                     .map(UserSettingDto::toEntity)
@@ -119,5 +125,15 @@ public class UserServiceImpl implements UserService {
         catch (Exception ex){
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isExist(String ssn) {
+        return userRepository.existsUserBySsn(ssn);
+    }
+
+    @Override
+    public boolean isExist(long id) {
+        return userRepository.existsById(id);
     }
 }
