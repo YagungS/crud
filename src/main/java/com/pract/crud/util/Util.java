@@ -40,4 +40,16 @@ public final class Util {
 
         return null;
     }
+    public static int getAgeYear(String date) {
+        try{
+            Date userDate = strToDate(date,"yyyy-mm-dd");
+            return Period.between(LocalDate.ofInstant(userDate.toInstant(), ZoneId.systemDefault()), LocalDate.now()).getYears();
+        }
+        catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }

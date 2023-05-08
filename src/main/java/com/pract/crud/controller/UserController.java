@@ -4,9 +4,7 @@ import com.pract.crud.dto.UserDto;
 import com.pract.crud.dto.UserSettingDto;
 import com.pract.crud.service.UserService;
 import com.pract.crud.service.UserSettingService;
-import com.pract.crud.util.ErrorCodes;
-import com.pract.crud.util.ObjectValidator;
-import com.pract.crud.util.ResponseHandler;
+import com.pract.crud.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,13 +57,12 @@ public class UserController {
         List<String> errors = new ArrayList<>();
         errors = validator.validate(user);
         try {
-            if (errors != null && !errors.isEmpty()) {
+            if (!errors.isEmpty()) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.BAD_REQUEST,
                         HttpStatus.BAD_REQUEST.name(),
                         ErrorCodes.CODE_BAD_REQUEST,
                         errors);
             }
-
             if (userService.isExist(user.getSsn())) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.CONFLICT,
                         HttpStatus.CONFLICT.name(),
@@ -137,6 +136,9 @@ public class UserController {
     @PutMapping("/{id}/settings")
     public ResponseEntity<Object> editUserSetting(@PathVariable long id, @RequestBody List<UserSettingDto> userSettings) {
         List<String> errors = new ArrayList<>();
+        Map<String, String> map =
+                userSettings.stream().collect(Collectors.toMap(UserSettingDto::getKey, UserSettingDto::getValue));
+        errors = validator.validateLOV(Constant.INITIAL_SETTINGS,map);
         try {
             if (!errors.isEmpty()) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.BAD_REQUEST,

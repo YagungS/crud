@@ -5,9 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pract.crud.entity.User;
 import com.pract.crud.entity.UserSetting;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +16,8 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @JsonIgnoreProperties({"id","userId"})
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Getter
+@Setter
 public class UserSettingDto {
     private long id;
 

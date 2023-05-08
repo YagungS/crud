@@ -6,25 +6,22 @@ import com.pract.crud.dto.UserSettingDto;
 import java.util.List;
 
 public interface UserService {
-    public String Test();
 
-    public List<UserDto> findAll(int offset, int limit);
+    List<UserDto> findAll(int offset, int limit);
 
-    public long count();
+    long count();
 
-    public UserDto save(UserDto user);
+    UserDto save(UserDto user);
 
-    public UserDto findById(long id);
+    UserDto findById(long id);
 
-    public UserDto update(UserDto userDto);
+    UserDto refresh(long id);
 
-    public UserDto refresh(long id);
+    UserDto updateSetting(long id, List<UserSettingDto> settings);
 
-    public UserDto updateSetting(long id, List<UserSettingDto> settings);
+    void delete(long id);
 
-    public void delete(long id);
+    boolean isExist(String ssn);
 
-    public boolean isExist(String ssn);
-
-    public boolean isExist(long id);
+    boolean isExist(long id);
 }
