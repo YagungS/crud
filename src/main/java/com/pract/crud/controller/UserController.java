@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -55,8 +54,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody UserDto user) {
-        List<String> errors = new ArrayList<>();
-        errors = validator.validate(user);
+        List<String> errors = validator.validate(user);
         try {
             if (!errors.isEmpty()) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.BAD_REQUEST,
@@ -64,11 +62,13 @@ public class UserController {
                         ErrorCodes.CODE_BAD_REQUEST,
                         errors);
             }
+            errors = new ArrayList<>();
             if (userService.isExist(user.getSsn())) {
+                errors.add(String.format(ErrorCodes.MSG_IS_EXIST, user.getSsn()));
                 return ResponseHandler.generateErrorResponse(HttpStatus.CONFLICT,
                         HttpStatus.CONFLICT.name(),
                         ErrorCodes.CODE_IS_EXIST,
-                        errors.add(String.format(ErrorCodes.MSG_IS_EXIST, user.getSsn())));
+                        errors);
             }
 
             UserDto result = userService.save(user);
@@ -90,7 +90,7 @@ public class UserController {
         try {
             UserDto user = userService.findById(id);
             if (user == null)
-                return notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, user.getSsn())));
+                return notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id)));
 
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
@@ -117,7 +117,7 @@ public class UserController {
             }
 
             UserDto result = userService.save(user);
-
+            errors = new ArrayList<>();
             if (result == null) {
                 return notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, user.getId())));
             }
@@ -130,16 +130,17 @@ public class UserController {
                     0);
         } catch (Exception ex) {
             ex.printStackTrace();
+            errors = new ArrayList<>();
             return generalError(errors.add(ErrorCodes.MSG_INTERNAL_ERROR));
         }
     }
 
     @PutMapping("/{id}/settings")
     public ResponseEntity<Object> editUserSetting(@PathVariable long id, @RequestBody List<UserSettingDto> userSettings) {
-        List<String> errors = new ArrayList<>();
+
         Map<String, String> map =
                 userSettings.stream().collect(Collectors.toMap(UserSettingDto::getKey, UserSettingDto::getValue));
-        errors = validator.validateLOV(Constant.INITIAL_SETTINGS,map);
+        List<String> errors = validator.validateLOV(Constant.INITIAL_SETTINGS,map);
         try {
             if (!errors.isEmpty()) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.BAD_REQUEST,
@@ -147,7 +148,7 @@ public class UserController {
                         ErrorCodes.CODE_BAD_REQUEST,
                         errors);
             }
-
+            errors = new ArrayList<>();
             if (!userService.isExist(id))
                 return notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id)));
 
@@ -187,11 +188,13 @@ public class UserController {
 
         List<String> errors = new ArrayList<>();
         try{
-            if (!userService.isExist(id))
+            if (!userService.isExist(id)) {
+                errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id));
                 return ResponseHandler.generateErrorResponse(HttpStatus.NOT_FOUND,
                         HttpStatus.NOT_FOUND.name(),
                         ErrorCodes.CODE_NOT_FOUND,
-                        errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id)));
+                        errors);
+            }
 
             UserDto user = userService.refresh(id);
 
