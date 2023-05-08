@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,7 +75,7 @@ public class UserController {
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     result,
-                    userSettingService.findByUserId(result.getId()),
+                    Util.UserSettingtoMap(userSettingService.findByUserId(result.getId())),
                     -1,
                     0);
         } catch (Exception ex) {
@@ -94,7 +95,7 @@ public class UserController {
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     user,
-                    userSettingService.findByUserId(user.getId()),
+                    Util.UserSettingtoMap(userSettingService.findByUserId(user.getId())),
                     -1,
                     0);
 
@@ -165,7 +166,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public <T> ResponseEntity<T> deleteUser(@PathVariable long id) {
+    public <T> ResponseEntity<T> deleteUser(@PathVariable(value = "id") long id) {
         List<String> errors = new ArrayList<>();
         try {
             if (!userService.isExist(id))
