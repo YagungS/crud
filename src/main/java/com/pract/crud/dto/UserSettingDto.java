@@ -29,6 +29,11 @@ public class UserSettingDto {
 
     private long userId;
 
+    public UserSettingDto(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
     public static UserSettingDto toDto(UserSetting userSetting) {
         if (userSetting != null) {
             return new UserSettingDto(userSetting.getId(), userSetting.getKey(), userSetting.getValue(),

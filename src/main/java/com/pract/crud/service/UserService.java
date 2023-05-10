@@ -19,7 +19,7 @@ public interface UserService {
 
     UserDto updateSetting(long id, List<UserSettingDto> settings);
 
-    void delete(long id);
+    void delete(UserDto dto);
 
     boolean isExist(String ssn);
 

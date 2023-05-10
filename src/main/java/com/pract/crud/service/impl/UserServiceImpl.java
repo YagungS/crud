@@ -25,13 +25,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> findAll(int offset, int limit) {
-        double pageNumber = 0;
+        /*double pageNumber = 0;
         if (offset > 0)
             pageNumber = (double) (offset / limit) + ( offset % limit );
-        PageRequest pReq = PageRequest.of((int) pageNumber, limit);
-        return userRepository.findAll(pReq).getContent().stream()
+        //PageRequest pReq = PageRequest.of((int) pageNumber, limit);*/
+        return userRepository.findAll(offset, limit).stream()
                 .map(UserDto::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -70,7 +70,7 @@ public class UserServiceImpl implements UserService {
         if(user.isPresent() && user.get().getDeletedTime() != null && !user.get().getIsActive()){
             User edited = user.get();
             edited.setDeletedTime(null);
-            userRepository.save(edited);
+            edited.setIsActive(true);
             return UserDto.toDto(edited);
         }
         return null;
@@ -80,7 +80,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateSetting(long id, List<UserSettingDto> settings) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()){
+        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive() == true){
             userSettingRepository.saveAll(settings.
                     stream()
                     .map(UserSettingDto::toEntity)
@@ -91,9 +91,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(long id) {
+    @Transactional
+    public void delete(UserDto dto) {
         try{
-            userRepository.deleteById(id);
+            userRepository.delete(UserDto.toEntity(dto));
         }
         catch (Exception ex){
             ex.printStackTrace();

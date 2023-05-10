@@ -22,12 +22,12 @@ public class ObjectValidator {
                         String.format( "Invalid value for field %s, rejected value : %s",
                                 tConstraintViolation.getPropertyPath().toString(),
                                 tConstraintViolation.getInvalidValue().toString())
-                    ).collect(Collectors.toList());
+                    ).toList();
         }
 
         return Collections.emptyList();
     }
-    public <T> List<String> validateLOV(Map<String, String> source, Map<String, String> input) {
+    public List<String> validateLOV(Map<String, String> source, Map<String, String> input) {
         List<String> errors = new ArrayList<>();
 
         for (String key : source.keySet()) {
@@ -37,12 +37,11 @@ public class ObjectValidator {
 
             String value = input.get(key);
             if (key.equals(Constant.WIDGEDT_ORDER)){
-                if(input.get(key).matches("^[1-5](,[1-5])*$")){
-                    List<String> order = new ArrayList<>(Arrays.asList(value.split(" , ")));
+                if(value.matches("^[1-5](,[1-5])*$")){
+                    List<String> order = Arrays.stream(value.split(",")).toList();
                     if(order.size()!=5 || isDuplicated(order)) {
                         errors.add("Invalid value for field " + key + ", rejected value : " + value);
                     }
-
                 }
             } else {
                 if (!value.equals("false") && !value.equals("true")){
@@ -57,6 +56,7 @@ public class ObjectValidator {
         for (int i = 0; i < input.size(); i++) {
             for (int j = i + 1; j < input.size(); j++) {
                 if (input.get(i).equals(input.get(j)) ) {
+                    System.out.println("DUPLICATION "+input.get(i));
                     return true;
                 }
             }

@@ -6,6 +6,7 @@ import com.pract.crud.service.UserService;
 import com.pract.crud.service.UserSettingService;
 import com.pract.crud.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -75,7 +75,7 @@ public class UserController {
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     result,
-                    Util.UserSettingtoMap(userSettingService.findByUserId(result.getId())),
+                    Util.userSettingtoMap(userSettingService.findByUserId(result.getId())).entrySet().toArray(),
                     -1,
                     0);
         } catch (Exception ex) {
@@ -95,7 +95,7 @@ public class UserController {
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     user,
-                    Util.UserSettingtoMap(userSettingService.findByUserId(user.getId())),
+                    Util.userSettingtoMap(userSettingService.findByUserId(user.getId())).entrySet().toArray(),
                     -1,
                     0);
 
@@ -136,24 +136,30 @@ public class UserController {
     }
 
     @PutMapping("/{id}/settings")
-    public ResponseEntity<Object> editUserSetting(@PathVariable long id, @RequestBody List<UserSettingDto> userSettings) {
-
-        Map<String, String> map =
-                userSettings.stream().collect(Collectors.toMap(UserSettingDto::getKey, UserSettingDto::getValue));
-        List<String> errors = validator.validateLOV(Constant.INITIAL_SETTINGS,map);
+    public ResponseEntity<Object> editUserSetting(@PathVariable long id, @RequestBody String userSettingsString) {
+        List<String> errors = new ArrayList<>();
         try {
+            JSONArray userSettings = new JSONArray(userSettingsString);
+
+            Map<String, String> map = Util.jsonToUserSetting(userSettings);
+
+            errors = validator.validateLOV(Constant.INITIAL_SETTINGS,map);
+
             if (!errors.isEmpty()) {
                 return ResponseHandler.generateErrorResponse(HttpStatus.BAD_REQUEST,
                         HttpStatus.BAD_REQUEST.name(),
                         ErrorCodes.CODE_BAD_REQUEST,
                         errors);
             }
+
             errors = new ArrayList<>();
+
             if (!userService.isExist(id))
                 return notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id)));
 
             UserDto result = userService.findById(id);
-            List<UserSettingDto> settings = userSettingService.update(userSettings, id);
+            List<UserSettingDto> settings = userSettingService.update(Util.mapToUserSetting(map), id);
+
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     result,
@@ -170,10 +176,11 @@ public class UserController {
     public <T> ResponseEntity<T> deleteUser(@PathVariable(value = "id") long id) {
         List<String> errors = new ArrayList<>();
         try {
-            if (!userService.isExist(id))
+            UserDto user = userService.findById(id);
+            if (user == null)
                 return (ResponseEntity<T>) notFound(errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id)));
 
-            userService.delete(id);
+            userService.delete(user);
 
             return new ResponseEntity<>(HttpStatus.OK);
 
@@ -188,20 +195,16 @@ public class UserController {
 
         List<String> errors = new ArrayList<>();
         try{
-            if (!userService.isExist(id)) {
-                errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id));
-                return ResponseHandler.generateErrorResponse(HttpStatus.NOT_FOUND,
-                        HttpStatus.NOT_FOUND.name(),
-                        ErrorCodes.CODE_NOT_FOUND,
-                        errors);
-            }
-
             UserDto user = userService.refresh(id);
+            if (user == null){
+                errors.add(String.format(ErrorCodes.MSG_NOT_FOUND, id));
+                return notFound(errors);
+            }
 
             return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                     HttpStatus.OK.name(),
                     user,
-                    userSettingService.findByUserId(user.getId()),
+                    Util.userSettingtoMap(userSettingService.findByUserId(user.getId())).entrySet().toArray(),
                     -1,
                     0);
 

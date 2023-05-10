@@ -13,15 +13,12 @@ import org.springframework.context.annotation.Bean;
 
 import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SpringBootApplication
 public class CrudApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext context = SpringApplication.run(CrudApplication.class, args);
-        Object dataSource = context.getBean("dataSource");
-        System.out.println(dataSource);
     }
 
     @Bean
@@ -33,12 +30,11 @@ public class CrudApplication {
                     "middle",
                     "family",
                     new SimpleDateFormat("yyyy-MM-dd").parse("1990-01-01"),
-                    true,
-                    null));
+                    true));
             Constant.INITIAL_SETTINGS.entrySet().stream()
                     .map(data -> new UserSetting(0, data.getKey(), data.getValue(), saved))
-                    .collect(Collectors.toList())
-                    .forEach(setting -> userSettingRepository.save(setting));
+                    .toList()
+                    .forEach(userSettingRepository::save);
         };
     }
 }

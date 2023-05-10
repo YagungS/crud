@@ -32,13 +32,13 @@ public class UserSettingServiceImpl implements UserSettingService {
     @Transactional
     public List<UserSettingDto> update(List<UserSettingDto> settings, long id) {
         List<UserSetting> old_settings = userSettingRepository.findUserSettingByUser_Id(id);
-        if (old_settings.isEmpty())
+        if (old_settings.isEmpty()) {
             return null;
+        }
         for (UserSetting old:old_settings) {
             for (UserSettingDto newS:settings) {
                 if(old.getKey().equals(newS.getKey())){
                     old.setValue(newS.getValue());
-                    userSettingRepository.save(old);
                 }
             }
         }

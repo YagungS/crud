@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "tbl_user")
-@SQLDelete(sql = "UPDATE tbl_user SET deleted_time = NOW(), is_active = false WHERE id=?")
+@SQLDelete(sql = "UPDATE tbl_user SET deleted_time = NOW(), is_active = false WHERE id = ?")
 public class User extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 2L;
@@ -46,11 +46,6 @@ public class User extends BaseEntity {
 
     @Column(name = "is_active", nullable = false, columnDefinition = "boolean default true")
     private Boolean isActive = true;
-
-    //@Nullable
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id", referencedColumnName = "id")
-    private List<UserSetting> userSettings;
 
     public User(long id) {
         User user = new User();
