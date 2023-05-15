@@ -35,9 +35,9 @@ public class UserSettingServiceImpl implements UserSettingService {
         if (old_settings.isEmpty()) {
             return null;
         }
-        for (UserSetting old:old_settings) {
-            for (UserSettingDto newS:settings) {
-                if(old.getKey().equals(newS.getKey())){
+        for (UserSetting old : old_settings) {
+            for (UserSettingDto newS : settings) {
+                if (old.getKey().equals(newS.getKey())) {
                     old.setValue(newS.getValue());
                 }
             }

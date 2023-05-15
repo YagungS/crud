@@ -18,15 +18,15 @@ public final class Util {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat(pattern);
             return formatter.parse(strDate);
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         return null;
     }
 
-    public static String dateToStr(Date date, String pattern){
-        try{
+    public static String dateToStr(Date date, String pattern) {
+        try {
             DateFormat dateFormat = new SimpleDateFormat(pattern);
             return dateFormat.format(date);
         } catch (Exception ex) {
@@ -37,21 +37,20 @@ public final class Util {
     }
 
     public static Period getAge(Date date) {
-        try{
+        try {
             return Period.between(LocalDate.ofInstant(date.toInstant(), ZoneId.systemDefault()), LocalDate.now());
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         return null;
     }
+
     public static int getAgeYear(String date) {
-        try{
-            Date userDate = strToDate(date,"yyyy-mm-dd");
+        try {
+            Date userDate = strToDate(date, "yyyy-mm-dd");
             return Period.between(LocalDate.ofInstant(userDate.toInstant(), ZoneId.systemDefault()), LocalDate.now()).getYears();
-        }
-        catch(Exception ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
 
@@ -70,36 +69,38 @@ public final class Util {
 
     public static List<UserSettingDto> mapToUserSetting(Map<String, String> map) {
         List<UserSettingDto> result = new ArrayList<>();
-        if (map !=null && !map.isEmpty()) {
+        if (map != null && !map.isEmpty()) {
             map.entrySet().forEach(
-                    item->{
-                        result.add(new UserSettingDto(item.getKey(), item.getValue()));}
+                    item -> {
+                        result.add(new UserSettingDto(item.getKey(), item.getValue()));
+                    }
             );
 
         }
         return result;
     }
+
     public static Map<String, String> objectToUserSetting(List<Object> objects) {
         Map<String, String> settings = new HashMap<>();
-        objects.forEach(o ->{
+        objects.forEach(o -> {
             for (Field declaredField : o.getClass().getDeclaredFields()) {
                 System.out.println(declaredField.getName());
                 //declaredField.setAccessible(true);
                 //settings.put(declaredField.getName(), declaredField.get(objects).toString());
             }
         });
-        
+
         return settings;
     }
 
     public static Map<String, String> jsonToUserSetting(JSONArray objects) throws JSONException {
         Map<String, String> result = new HashMap<>();
 
-        if (objects != null){
-            for (int i = 0; i< objects.length(); i++){
+        if (objects != null) {
+            for (int i = 0; i < objects.length(); i++) {
                 JSONObject jsonObject = objects.getJSONObject(i);
                 Iterator<?> keys = jsonObject.keys();
-                while (keys.hasNext()){
+                while (keys.hasNext()) {
                     String key = (String) keys.next();
                     result.put(key, (String) jsonObject.get(key));
                 }

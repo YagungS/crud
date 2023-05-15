@@ -42,22 +42,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto save(UserDto user) {
-        try{
-            User savedUser = userRepository.saveAndFlush(UserDto.toEntity(user));
+        User savedUser = userRepository.saveAndFlush(UserDto.toEntity(user));
 
-            UserSettingDto.generateDefaultUserSetting()
-                    .forEach(userSettingDto -> userSettingRepository.saveAndFlush(UserSettingDto.toEntity(userSettingDto, savedUser)));
-            return UserDto.toDto(savedUser);
-        } catch (Exception ex){
-            ex.printStackTrace();
-        }
-        return null;
+        UserSettingDto.generateDefaultUserSetting()
+                .forEach(userSettingDto -> userSettingRepository.saveAndFlush(UserSettingDto.toEntity(userSettingDto, savedUser)));
+        return UserDto.toDto(savedUser);
     }
 
     @Override
     public UserDto findById(long id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()){
+        if (user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()) {
             return UserDto.toDto(user.get());
         }
         return null;
@@ -67,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto refresh(long id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() != null && !user.get().getIsActive()){
+        if (user.isPresent() && user.get().getDeletedTime() != null && !user.get().getIsActive()) {
             User edited = user.get();
             edited.setDeletedTime(null);
             edited.setIsActive(true);
@@ -80,7 +75,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserDto updateSetting(long id, List<UserSettingDto> settings) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive() == true){
+        if (user.isPresent() && user.get().getDeletedTime() == null && user.get().getIsActive()) {
             userSettingRepository.saveAll(settings.
                     stream()
                     .map(UserSettingDto::toEntity)
@@ -93,10 +88,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(UserDto dto) {
-        try{
+        try {
             userRepository.delete(UserDto.toEntity(dto));
-        }
-        catch (Exception ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
         }
     }

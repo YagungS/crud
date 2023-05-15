@@ -40,7 +40,7 @@ public class OffsetBasedPageable implements Pageable {
 
     public Pageable previous() {
         return hasPrevious() ?
-                new OffsetBasedPageable(getPageSize(), (int) (getOffset() - getPageSize())): this;
+                new OffsetBasedPageable(getPageSize(), (int) (getOffset() - getPageSize())) : this;
     }
 
     @Override
