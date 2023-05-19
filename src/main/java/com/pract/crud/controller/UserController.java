@@ -2,7 +2,9 @@ package com.pract.crud.controller;
 
 import com.pract.crud.dto.UserDto;
 import com.pract.crud.dto.UserSettingDto;
+import com.pract.crud.exception.DataExistException;
 import com.pract.crud.exception.NoDataFoundException;
+import com.pract.crud.exception.SuccessResponse;
 import com.pract.crud.service.UserService;
 import com.pract.crud.service.UserSettingService;
 import com.pract.crud.util.*;
@@ -32,20 +34,16 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Object> findAll(@RequestParam(required = false, defaultValue = "0") @Min(0) Integer offset,
                                           @RequestParam(required = false, defaultValue = "5") @Min(1) Integer limit) {
-        List<String> errors = new ArrayList<>();
-        List<UserDto> users = userService.findAll(offset, limit);
 
-        return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
-                    HttpStatus.OK.name(),
-                    userService.findAll(offset, limit),
-                    null,
-                    offset,
-                    limit);
+        return ResponseEntity.ok().body(new SuccessResponse(offset, limit, userService.findAll(offset, limit), null));
+
     }
 
     @PostMapping
     public ResponseEntity<Object> save(@RequestBody @Valid UserDto user) {
 
+        if (userService.isExist(user.getSsn()))
+            throw new DataExistException(user.getSsn());
         UserDto result = userService.save(user);
         return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
                 HttpStatus.OK.name(),
@@ -72,14 +70,14 @@ public class UserController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> editUser(@RequestBody @Valid UserDto user) {
-            UserDto result = userService.save(user);
+        UserDto result = userService.save(user);
 
-            return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
-                    HttpStatus.OK.name(),
-                    result,
-                    userSettingService.findByUserId(result.getId()),
-                    -1,
-                    0);
+        return ResponseHandler.generateSuccessResponse(HttpStatus.OK,
+                HttpStatus.OK.name(),
+                result,
+                userSettingService.findByUserId(result.getId()),
+                -1,
+                0);
     }
 
     @PutMapping("/{id}/settings")
@@ -100,7 +98,7 @@ public class UserController {
         }
 
         if (!userService.isExist(id))
-                throw new NoDataFoundException(String.valueOf(id));
+            throw new NoDataFoundException(String.valueOf(id));
 
         UserDto result = userService.findById(id);
         List<UserSettingDto> settings = userSettingService.update(Util.mapToUserSetting(map), id);

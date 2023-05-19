@@ -8,17 +8,15 @@ import com.pract.crud.util.Constant;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class CrudApplication {
 
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(CrudApplication.class, args);
+        SpringApplication.run(CrudApplication.class, args);
     }
 
     @Bean

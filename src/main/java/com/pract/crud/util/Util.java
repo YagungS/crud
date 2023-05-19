@@ -26,6 +26,9 @@ public final class Util {
     }
 
     public static String dateToStr(Date date, String pattern) {
+
+        System.out.println(date);
+        System.out.println(pattern);
         try {
             DateFormat dateFormat = new SimpleDateFormat(pattern);
             return dateFormat.format(date);

@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.lang.Nullable;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,14 +19,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-
-import static java.util.stream.Collectors.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -37,24 +32,24 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
-    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request){
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.name(), ErrorCodes.CODE_BAD_REQUEST);
 
         getRejectedJsonProperties(ex).entrySet()
                 .forEach(entrySet ->
-                    errorResponse.addError(String.format(ErrorMsg.MSG_BAD_REQUEST,entrySet.getKey(), entrySet.getValue()))
+                        errorResponse.addError(String.format(ErrorMsg.MSG_BAD_REQUEST, entrySet.getKey(), entrySet.getValue()))
                 );
 
         return ResponseEntity.badRequest().body(errorResponse);
     }
 
-    /*@Override
+    @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request){
+    public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.name(), ErrorCodes.CODE_BAD_REQUEST);
         errorResponse.addError(ex.getMessage());
         return ResponseEntity.badRequest().body(errorResponse);
-    }*/
+    }
 
     @ExceptionHandler(NoDataFoundException.class)
     public ResponseEntity<Object> handleNoSuchElementFoundException(NoDataFoundException itemNotFoundException) {
@@ -93,10 +88,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private Map<String, Object> getRejectedJsonProperties(MethodArgumentNotValidException e) {
 
         Map<String, Object> rejectedProps = new HashMap<>();
-                e.getBindingResult().getFieldErrors()
-                .forEach(field -> {
-                    rejectedProps.put(field.getField(), field.getRejectedValue());
-                });
+        e.getBindingResult().getFieldErrors()
+                .forEach(field -> rejectedProps.put(field.getField(), field.getRejectedValue()));
 
         Arrays.stream(e.getParameter().getParameterType().getDeclaredFields())
                 .filter(f -> rejectedProps.containsKey(f.getName()))

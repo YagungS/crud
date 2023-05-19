@@ -1,18 +1,14 @@
 package com.pract.crud.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.SQLDelete;
 
 import java.io.Serial;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
