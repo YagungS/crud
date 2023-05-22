@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.pract.crud.dto.UserDto;
+import lombok.SneakyThrows;
+import org.springframework.boot.jackson.JsonComponent;
 import org.springframework.core.MethodParameter;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
@@ -12,12 +14,13 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class DateValidator extends StdDeserializer {
+public class DateValidator extends StdDeserializer<Date> {
     public DateValidator() {
         super(Date.class);
     }
 
     @Override
+    @SneakyThrows
     public Date deserialize(JsonParser p, DeserializationContext ctx) {
         UserDto user = new UserDto();
         BindingResult binding_R = new BeanPropertyBindingResult(user, "user");
@@ -27,21 +30,17 @@ public class DateValidator extends StdDeserializer {
             format.setLenient(false);
             Date birthDate = format.parse(value);
             if (isGreaterOrEqual100Year(birthDate) == true) {
+                System.out.println("Throw #1");
                 binding_R.rejectValue("birthDate", "30002");
                 throw new MethodArgumentNotValidException(new MethodParameter(
-                        this.getClass().getDeclaredMethod("setDate", UserDto.class), 0), binding_R);
+                        UserDto.class.getDeclaredMethod("setBirthDate"), 0), binding_R);
 
             }
 
             return birthDate;
         } catch (Exception e) {
-            binding_R.rejectValue("birthDate", "30002");
-            try {
-                throw new MethodArgumentNotValidException(new MethodParameter(
-                        this.getClass().getDeclaredMethod("setDate", UserDto.class), 0), binding_R);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
+            System.out.println("Throw #2");
+            throw new RuntimeException("test");
         }
     }
 

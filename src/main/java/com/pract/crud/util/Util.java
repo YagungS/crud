@@ -5,7 +5,6 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -26,9 +25,6 @@ public final class Util {
     }
 
     public static String dateToStr(Date date, String pattern) {
-
-        System.out.println(date);
-        System.out.println(pattern);
         try {
             DateFormat dateFormat = new SimpleDateFormat(pattern);
             return dateFormat.format(date);
@@ -47,17 +43,6 @@ public final class Util {
         }
 
         return null;
-    }
-
-    public static int getAgeYear(String date) {
-        try {
-            Date userDate = strToDate(date, "yyyy-mm-dd");
-            return Period.between(LocalDate.ofInstant(userDate.toInstant(), ZoneId.systemDefault()), LocalDate.now()).getYears();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        return 0;
     }
 
     public static Map<String, String> userSettingtoMap(List<UserSettingDto> settings) {
@@ -81,19 +66,6 @@ public final class Util {
 
         }
         return result;
-    }
-
-    public static Map<String, String> objectToUserSetting(List<Object> objects) {
-        Map<String, String> settings = new HashMap<>();
-        objects.forEach(o -> {
-            for (Field declaredField : o.getClass().getDeclaredFields()) {
-                System.out.println(declaredField.getName());
-                //declaredField.setAccessible(true);
-                //settings.put(declaredField.getName(), declaredField.get(objects).toString());
-            }
-        });
-
-        return settings;
     }
 
     public static Map<String, String> jsonToUserSetting(JSONArray objects) throws JSONException {

@@ -33,6 +33,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        System.out.println("Catch #handleMethodArgumentNotValid");
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.name(), ErrorCodes.CODE_BAD_REQUEST);
 
         getRejectedJsonProperties(ex).entrySet()
@@ -46,6 +48,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        System.out.println("Catch #handleHttpMessageNotReadable");
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.BAD_REQUEST.name(), ErrorCodes.CODE_BAD_REQUEST);
         errorResponse.addError(ex.getMessage());
         return ResponseEntity.badRequest().body(errorResponse);
